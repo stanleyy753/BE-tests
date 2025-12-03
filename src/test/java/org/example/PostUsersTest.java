@@ -8,7 +8,9 @@ import org.example.dto.post.UserRequest;
 import org.example.util.TestDataUtils;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,10 +46,12 @@ public class PostUsersTest extends BaseTest {
             assertThat(userResponse.getName()).isEqualTo(request.getName());
             assertThat(userResponse.getJob()).isEqualTo(request.getJob());
 
-            //timestamp assertion
-            assertThat(OffsetDateTime.parse(userResponse.getCreatedAt()))
-                    .isBeforeOrEqualTo(OffsetDateTime.now())
-                    .isAfter(OffsetDateTime.now().minusMinutes(1));
+            //check timestamp
+            OffsetDateTime createdAt = OffsetDateTime.parse(userResponse.getCreatedAt());
+            OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+
+            assertThat(Math.abs(Duration.between(createdAt, now).toMillis()))
+                    .isLessThan(5000); // 5 seconds
 
             System.out.println("Created user ID: " + userResponse.getId() +
                     ", Name: " + userResponse.getName());
